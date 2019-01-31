@@ -7,6 +7,7 @@
         <title>Chuck Norris</title>
 
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+        <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Roboto:300" rel="stylesheet"> 
 
@@ -45,17 +46,77 @@
                 text-align: center;
             }
 
+            #joke {
+                padding: 0 15%;
+            }
+
+            #jokeList {
+                text-align: left;
+                padding: 0 10%;
+            }
 
             h1 {
                 font-size: 70px;
             }
 
+            h2 {
+                font-size: 50px;
+            }
+
             p {
-                font-size: 30px;
+                font-size: 25px;
+            }
+
+            span {
+                font-size: 20px;
             }
 
             .m-b-md {
                 margin-bottom: 30px;
+            }
+
+            label {
+            font-size: 48px;
+            margin-bottom: 1.2rem;
+            }
+
+            label input[type="checkbox"] {
+            display: none;
+            }
+
+            .custom-checkbox {
+            margin-left: 0.5em;
+            position: relative;
+            cursor: pointer;
+            }
+
+            .custom-checkbox .checkFavorite {
+            color: gold;
+            position: absolute;
+            font-size: 0.75em;
+            }
+
+            .checkRemove {
+                color: #b30000;
+                position: absolute;
+                font-size: 0.5em;
+            }
+
+            .custom-checkbox .fa-star-o {
+            color: gray;
+            }
+
+            .custom-checkbox .fa-star {
+            opacity: 0;
+            transition: opacity 0.2s ease-in-out;
+            }
+
+            .custom-checkbox:hover .fa-star {
+            opacity: 0.5;
+            }
+
+            .custom-checkbox input[type="checkbox"]:checked ~ .fa-star {
+            opacity: 1;
             }
         </style>
     </head>
@@ -68,6 +129,18 @@
                     <h1>The Chuck Norris application</h1>
                     <p id="joke">Press the button to load in a joke.</p><br />
                     <button type="button" class="btn btn-primary">Load a new joke</button>
+                    <span class="favorite"></span>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="flex-center position-ref">
+            <div class="content">
+                <div class="title m-b-md">
+                    <h2>Your favorite jokes</h2>
+                    <ul id="jokeList">
+                        
+                    </ul>
                 </div>
             </div>
         </div>
@@ -77,13 +150,24 @@
                 $('.btn-primary').click(function() {
                     $('#joke').text('Loading a new joke...');
                     $.ajax({
-                        type:"GET",
-                        url:"https://api.icndb.com/jokes/random",
+                        type:'GET',
+                        url:'https://api.icndb.com/jokes/random',
                         success: function(data) {
-                            $("#joke").text(JSON.stringify(data.value.joke))
+                            $('#joke').html(JSON.stringify(data.value.joke))
+                            $('.favorite')
+                                .empty()
+                                .append($('<label for="addToFavorites" class="custom-checkbox"></label>').html('<i class="checkFavorite fa fa-star-o"></i><i class="checkFavorite fa fa-star"></i>')
+                                .append($('<input type="checkbox" value="'+ data.value.id +'" id="addToFavorites"/>').on('click', function() {
+                                    $('#jokeList')
+                                        .append($('<li class="jokeItem joke-'+ data.value.id +'"></li>').html('<p class="jokeText">'+ data.value.joke +'</p>'))
+                                        $('<label for="removeFromFavorites" class="custom-checkbox"></label>').html('<i class="checkRemove fa fa-trash-o"></i>').appendTo('.joke-'+ data.value.id +' .jokeText')   
+                                        .append($('<input type="checkbox" value="'+ data.value.id +'" id="removeFromFavorites"/>'). on('click', function() {
+                                                $('.joke-'+ data.value.id +'').remove();
+                                        }));
+                                })));
                         },
                         error: function (data) {
-                            alert("Whoops, something went wrong: " + data);
+                            alert('Whoops, something went wrong: ' + data);
                         },
                         dataType: 'json',
                     });
