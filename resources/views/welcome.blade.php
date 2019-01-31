@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>Chuck Norris</title>
 
@@ -146,7 +147,7 @@
         </div>
 
         <script>
-            window.onload = function() {
+            $(document).ready(function() {
                 $('.btn-primary').click(function() {
                     $('#joke').text('Loading a new joke...');
                     $.ajax({
@@ -157,13 +158,28 @@
                             $('.favorite')
                                 .empty()
                                 .append($('<label for="addToFavorites" class="custom-checkbox"></label>').html('<i class="checkFavorite fa fa-star-o"></i><i class="checkFavorite fa fa-star"></i>')
-                                .append($('<input type="checkbox" value="'+ data.value.id +'" id="addToFavorites"/>').on('click', function() {
+                                .append($('<input type="checkbox" value="'+ data.value.id +'" id="addToFavorites" id="addFavorite"/>').on('click', function(e) {
                                     $('#jokeList')
-                                        .append($('<li class="jokeItem joke-'+ data.value.id +'"></li>').html('<p class="jokeText">'+ data.value.joke +'</p>'))
-                                        $('<label for="removeFromFavorites" class="custom-checkbox"></label>').html('<i class="checkRemove fa fa-trash-o"></i>').appendTo('.joke-'+ data.value.id +' .jokeText')   
-                                        .append($('<input type="checkbox" value="'+ data.value.id +'" id="removeFromFavorites"/>'). on('click', function() {
-                                                $('.joke-'+ data.value.id +'').remove();
-                                        }));
+                                    .append($('<li class="jokeItem joke-'+ data.value.id +'" name="jokeId"></li>').html('<p name="jokeText" class="jokeText" id="jokeText">'+ data.value.joke +'</p>'))
+                                    $.ajaxSetup({
+                                        headers: {
+                                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                        }
+                                    });
+
+                                    $.ajax({
+                                        method: 'post',
+                                        url: "{{ url('/favouritejokes/save') }}",
+                                        data: {
+                                            'joke_id': data.value.id,
+                                            'joke_text': data.value.joke,
+                                        }
+                                    });
+                                    $('<label for="removeFromFavorites" class="custom-checkbox"></label>').html('<i class="checkRemove fa fa-trash-o"></i>').appendTo('.joke-'+ data.value.id +' .jokeText')   
+                                    .append($('<input type="checkbox" value="'+ data.value.id +'" id="removeFromFavorites" data-action="delete"/>'). on('click', function() {
+                                        deleteJoke();
+                                        $('.joke-'+ data.value.id +'').remove();
+                                    }));
                                 })));
                         },
                         error: function (data) {
@@ -172,7 +188,26 @@
                         dataType: 'json',
                     });
                 });
-            }
+
+                function deleteJoke(joke_id) {
+                    $(document).on('click', '.removeFromFavorites', function() {
+                        // var id = $(this).attr('joke_id');
+                        // $.ajaxSetup({
+                        //     headers: {
+                        //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        //     }
+                        // });
+    
+                        $.ajax({
+                            url: "{{ url('/favouritejokes/remove') }}",
+                            mehtod:"get",
+                            data: {
+                                'joke_id': joke_id,
+                            }
+                        });
+                    });
+                }
+            });
         </script>
     </body>
 </html>
