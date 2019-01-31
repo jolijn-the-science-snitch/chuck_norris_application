@@ -176,7 +176,7 @@
                                         }
                                     });
                                     $('<label for="removeFromFavorites" class="custom-checkbox"></label>').html('<i class="checkRemove fa fa-trash-o"></i>').appendTo('.joke-'+ data.value.id +' .jokeText')   
-                                    .append($('<input type="checkbox" value="'+ data.value.id +'" id="removeFromFavorites" data-action="delete"/>'). on('click', function() {
+                                    .append($('<input type="checkbox" value="'+ data.value.id +'" class="remove" id="removeFromFavorites" data-id="'+ data.value.id +'"/>'). on('click', function() {
                                         deleteJoke();
                                         $('.joke-'+ data.value.id +'').remove();
                                     }));
@@ -190,8 +190,9 @@
                 });
 
                 function deleteJoke(joke_id) {
-                    $(document).on('click', '.removeFromFavorites', function() {
-                        // var id = $(this).attr('joke_id');
+                    $(".remove").click(function() {
+                        var id = $(this).attr('joke_id');
+                        var token = $("meta[name='csrf-token']").attr("content");
                         // $.ajaxSetup({
                         //     headers: {
                         //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
