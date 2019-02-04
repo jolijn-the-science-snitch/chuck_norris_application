@@ -18,7 +18,7 @@ class FavouriteJokesController extends Controller
         $favouriteJoke->save();
     }
 
-    public function delete($id) {
-        FavouriteJokes::find($id)->delete($id);
+    public function delete(Request $request) {
+        FavouriteJokes::where(['joke_id' => $request->joke_id])->delete();
     }
 }

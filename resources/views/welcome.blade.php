@@ -139,9 +139,7 @@
             <div class="content">
                 <div class="title m-b-md">
                     <h2>Your favorite jokes</h2>
-                    <ul id="jokeList">
-                        
-                    </ul>
+                    <ul id="jokeList"></ul>
                 </div>
             </div>
         </div>
@@ -176,36 +174,29 @@
                                         }
                                     });
                                     $('<label for="removeFromFavorites" class="custom-checkbox"></label>').html('<i class="checkRemove fa fa-trash-o"></i>').appendTo('.joke-'+ data.value.id +' .jokeText')   
-                                    .append($('<input type="checkbox" value="'+ data.value.id +'" class="remove" id="removeFromFavorites" data-id="'+ data.value.id +'"/>'). on('click', function() {
-                                        deleteJoke();
-                                        $('.joke-'+ data.value.id +'').remove();
+                                    .append($('<input type="checkbox" value="'+ data.value.id +'" class="deleteJoke" id="removeFromFavorites" data-id="'+ data.value.id +'"/>'). on('click', function() {
+                                        deleteJoke(data.value.id);
                                     }));
                                 })));
                         },
                         error: function (data) {
-                            alert('Whoops, something went wrong: ' + data);
+                            alert('Whoops, something went wrong');
                         },
                         dataType: 'json',
                     });
                 });
 
                 function deleteJoke(joke_id) {
-                    $(".remove").click(function() {
-                        var id = $(this).attr('joke_id');
-                        var token = $("meta[name='csrf-token']").attr("content");
-                        // $.ajaxSetup({
-                        //     headers: {
-                        //         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        //     }
-                        // });
-    
-                        $.ajax({
-                            url: "{{ url('/favouritejokes/remove') }}",
-                            mehtod:"get",
-                            data: {
-                                'joke_id': joke_id,
-                            }
-                        });
+                    $.ajax({
+                        url: "{{ url('/favouritejokes/delete') }}",
+                        method: 'post',
+                        data: {
+                            "joke_id": joke_id,
+                        },
+                        success: function (){
+                            $('.joke-'+ joke_id +'').remove();
+                            alert('You have removed one of your favorite jokes... You have to refresh the page to start liking new ones again. (All other saved jokes will be lost too)');
+                        }
                     });
                 }
             });
